@@ -1,5 +1,8 @@
 void ConfigGammaJetCorr (TString inputfile = "files.txt" ) {
 
+
+  Int_t debugLevel = 0;
+
   gSystem->Load("libTree.so");
   gSystem->Load("libPhysics.so");
   gSystem->Load("libGeom.so");
@@ -23,32 +26,32 @@ void ConfigGammaJetCorr (TString inputfile = "files.txt" ) {
   }
     
   AliAnalysisManager *mgr  = new AliAnalysisManager("GammaJet Manager", "GammaJet Manager");
-  mgr->SetDebugLevel(0);
+  mgr->SetDebugLevel(debugLevel);
 
   AliAODInputHandler * inpHandler = new AliAODInputHandler();
   
-  //inpHandler->AddFriend("AliAODGammaConversion.root");
-  //  inpHandler->SetDebugLevel(0);
+  inpHandler->AddFriend("AliAODGammaConversion.root");
+  //  inpHandler->SetDebugLevel(debugLevel);
   mgr->SetInputEventHandler(inpHandler);
 
 
   AliAnalysisTaskGCPartToPWG4Part * gammaJetAna = new AliAnalysisTaskGCPartToPWG4Part("gamma jet analysis");
-  gammaJetAna->SetDebugLevel(0);
+  gammaJetAna->SetDebugLevel(debugLevel);
   //gammaJetAna->SetGammaBranchName("GammaConversionTask_900356200010031");
   gammaJetAna->SetDeltaAODFileName("");
   
   mgr->AddTask(gammaJetAna);
     
   AliAnalysisDataContainer *cinput1 = mgr->GetCommonInputContainer();
-  AliAnalysisDataContainer *coutput2 = mgr->CreateContainer("histos", TList::Class(), AliAnalysisManager::kOutputContainer, "histos.root");
+  //AliAnalysisDataContainer *coutput2 = mgr->CreateContainer("histos", TList::Class(), AliAnalysisManager::kOutputContainer, "histos.root");
 
 
   mgr->ConnectInput  (gammaJetAna,  0, cinput1  );
-  mgr->ConnectOutput (gammaJetAna,  1, coutput2 );
+  //mgr->ConnectOutput (gammaJetAna,  1, coutput2 );
 
   gROOT->LoadMacro("AddTaskPartCorr.C");
   AliAnalysisTaskParticleCorrelation *taskPartCorr = AddTaskPartCorr("AOD", "CTS",kTRUE,kTRUE);
-  taskPartCorr->SetDebugLevel(0);
+  taskPartCorr->SetDebugLevel(debugLevel);
   //taskPartCorr->GetReader()->SetDataType(inputDataType::kMC);
   
   ///////////////////////////////AOD handler
@@ -61,8 +64,8 @@ void ConfigGammaJetCorr (TString inputfile = "files.txt" ) {
   
   mgr->InitAnalysis();
   mgr->PrintStatus();
-  //mgr->StartAnalysis("local",chain, 1000);
-  mgr->StartAnalysis("local",chain);
+  mgr->StartAnalysis("local",chain, 10000);
+  //mgr->StartAnalysis("local",chain);
 
 }
 
